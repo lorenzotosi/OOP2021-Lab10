@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -35,7 +37,19 @@ public final class LambdaFilter extends JFrame {
     private static final long serialVersionUID = 1760990730218643730L;
 
     private enum Command {
-        IDENTITY("No modifications", Function.identity());
+        IDENTITY("No modifications", Function.identity()),
+        LOWER("Lowercase", String::toLowerCase),
+        NUMBER("Num of chars", x -> Integer.toString(x.length())),
+        LINES("Num of lines", x -> Long.toString(x.chars().filter(z -> z == '\n').count())),
+        COUNTER("Counter of words", x -> Arrays.stream(x.split(" ")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .map(e -> e.getKey() + "->" + e.getValue())
+                .collect(Collectors.joining("\n"))),
+        ORDER("Alphabetical order", s -> Arrays.stream(s.split(" "))
+                .sorted()
+                .collect(Collectors.joining("\n"))
+     );
+
 
         private final String commandName;
         private final Function<String, String> fun;
@@ -62,6 +76,7 @@ public final class LambdaFilter extends JFrame {
         final LayoutManager layout = new BorderLayout();
         panel1.setLayout(layout);
         final JComboBox<Command> combo = new JComboBox<>(Command.values());
+
         panel1.add(combo, BorderLayout.NORTH);
         final JPanel centralPanel = new JPanel(new GridLayout(1, 2));
         final JTextArea left = new JTextArea();
